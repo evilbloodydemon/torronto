@@ -1,0 +1,134 @@
+﻿ ALTER TABLE `movies_users`
+	ADD COLUMN `created` DATETIME NOT NULL,
+	ADD COLUMN `is_watched` TINYINT( 1 ) NOT NULL;
+
+UPDATE `movies_users` SET created = UTC_TIMESTAMP();
+
+ALTER TABLE  `movies_users` ADD  `mark` INT NULL DEFAULT NULL ;
+
+ALTER TABLE  `movies` ADD  `description` TEXT NULL ;
+
+ALTER TABLE `users` 
+	ADD COLUMN `filter_video` TINYINT(4) NOT NULL,
+	ADD COLUMN `filter_audio` TINYINT(4) NOT NULL,
+	ADD COLUMN `filter_translation` TINYINT(4) NOT NULL,
+	ADD COLUMN `filter_sizes` varchar(20) NOT NULL;
+
+CREATE TABLE IF NOT EXISTS `torrents_users` (
+	`torrent_id` int(11) NOT NULL,
+	`user_id` int(11) NOT NULL,
+	`email_sent` datetime default NULL,
+	PRIMARY KEY  (`torrent_id`,`user_id`),
+	KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `torrents_users`
+	ADD CONSTRAINT `torrents_users_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+	ADD CONSTRAINT `torrents_users_ibfk_1` FOREIGN KEY (`torrent_id`) REFERENCES `torrents` (`id`) ON DELETE CASCADE;
+
+
+update `torrents` set video_quality = 1 where video_quality = 10;
+update `torrents` set video_quality = 2 where video_quality = 15;
+update `torrents` set video_quality = 4 where video_quality = 20;
+update `torrents` set video_quality = 8 where video_quality = 30;
+
+update `torrents` set sound_quality = 1 where sound_quality = 10;
+update `torrents` set sound_quality = 4 where sound_quality = 20;
+update `torrents` set sound_quality = 8 where sound_quality = 30;
+
+update `torrents` set translation = 1 where translation = 10;
+update `torrents` set translation = 4 where translation = 20;
+update `torrents` set translation = 8 where translation = 30;
+
+ALTER TABLE `movies` 
+	ADD COLUMN `best_video_quality` TINYINT(4) NOT NULL;
+
+UPDATE `movies` m 
+	SET best_video_quality = (SELECT MAX(video_quality) FROM torrents t WHERE t.movie_id = m.id);
+
+ALTER TABLE `torrents` 
+	ADD COLUMN `category` TINYINT(4) NOT NULL;
+
+UPDATE `torrents` SET category = 1 WHERE category = 0;
+
+
+CREATE TABLE IF NOT EXISTS `movies_persons` (
+  `person_id` int(11) NOT NULL,
+  `movie_id` int(11) NOT NULL,
+  `position` tinyint(4) NOT NULL,
+  PRIMARY KEY  (`person_id`,`movie_id`),
+  KEY `movie_id` (`movie_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `persons` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` varchar(100) NOT NULL,
+  `site_id` int(11) NOT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+ALTER TABLE `movies_persons`
+  ADD CONSTRAINT `movies_persons_ibfk_2` FOREIGN KEY (`movie_id`) REFERENCES `movies` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `movies_persons_ibfk_1` FOREIGN KEY (`person_id`) REFERENCES `persons` (`id`) ON DELETE CASCADE;
+
+ CREATE TABLE IF NOT EXISTS `genres` (
+	`id` int(11) NOT NULL auto_increment,
+	`name` varchar(100) NOT NULL,
+	`site_id` int(11) NOT NULL,
+	PRIMARY KEY  (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `movies_genres` (
+  `movie_id` int(11) NOT NULL,
+  `genre_id` int(11) NOT NULL,
+  `position` tinyint(4) NOT NULL,
+  PRIMARY KEY  (`movie_id`, `genre_id`),
+  KEY `movie_id` (`genre_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `movies_genres`
+  ADD CONSTRAINT `movies_genres_ibfk_2` FOREIGN KEY (`movie_id`) REFERENCES `movies` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `movies_genres_ibfk_1` FOREIGN KEY (`genre_id`) REFERENCES `genres` (`id`) ON DELETE CASCADE;
+
+ALTER TABLE `movies` 
+	ADD COLUMN `duration_minutes` INT(11) NOT NULL;
+
+ALTER TABLE `movies_users` 
+	ADD `is_dont_want` TINYINT(1) NOT NULL;
+
+CREATE TABLE IF NOT EXISTS `movies_recommendations` (
+	`movie_id` int(11) NOT NULL,
+	`other_movie_id` int(11) NOT NULL,
+	`position` tinyint(4) NOT NULL,
+	PRIMARY KEY  (`movie_id`,`other_movie_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `movies` 
+	ADD COLUMN `last_recommendation` datetime default NULL;
+
+CREATE TABLE IF NOT EXISTS `user_identities` (
+	`id` int(11) NOT NULL auto_increment,
+	`auth_provider_name` varchar(50) NOT NULL,
+	`auth_provider_id` varchar(100) NOT NULL,
+	`email` varchar(50) NOT NULL,
+	`created` datetime NOT NULL,
+	`user_id` int(11) NOT NULL,
+	`display_name` varchar(100) NOT NULL,
+	PRIMARY KEY  (`id`),
+	KEY `user_id` (`user_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+ALTER TABLE `user_identities`
+  ADD CONSTRAINT `user_identities_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+ALTER TABLE `torrents_users` ADD `is_subscribed` TINYINT( 1 ) NOT NULL 
+
+ALTER TABLE `movies` ADD `is_copyrighted` TINYINT( 1 ) NOT NULL 
+
+ALTER TABLE `torrents_users` ADD `added_rss` datetime default NULL 
+
+
+delete mu
+from movies_users mu
+left join users u on u.id = mu.user_id
+where u.id is null

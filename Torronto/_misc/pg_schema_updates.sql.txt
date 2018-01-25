@@ -1,0 +1,31 @@
+﻿CREATE MATERIALIZED VIEW movies_top_week AS SELECT
+	torrents.movie_id,
+	COUNT (*) AS torrent_count
+FROM
+	torrents
+WHERE
+	torrents.created > (
+		timezone ('utc' :: TEXT, now()) - '7 days' :: INTERVAL
+	)
+	AND torrents.movie_id IS NOT NULL
+GROUP BY
+	torrents.movie_id
+HAVING
+	COUNT (*) > 1 
+WITH DATA;
+
+ALTER TABLE movies_top_week OWNER TO torronto_user;
+
+--
+
+CREATE INDEX movies_rating_kinopoisk_is_copyrighted_idx
+  ON movies
+  USING btree
+  (rating_kinopoisk, is_copyrighted);
+
+--
+
+CREATE INDEX torrents_created_id_idx
+  ON torrents
+  USING btree
+  (created, id);

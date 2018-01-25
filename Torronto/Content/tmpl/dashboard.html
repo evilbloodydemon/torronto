@@ -1,0 +1,109 @@
+﻿<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <form class="form-horizontal form-filter" ng-controller="DashboardSearchCtrl">
+            <div class="form-group">
+                <div class="input-group">
+                    <angucomplete 
+                        id="movieSearch"
+                        placeholder="Название фильма"
+                        pause="400"
+                        minlength="2"
+                        search-str="searchTerm"
+                        inputclass="form-control"
+                        selectedobject="movieSelected"
+                        url="/api/search/movie_completion?title="
+                        datafield="results"
+                        titlefield="Title"
+                        on-empty-select="searchClick()"
+                        on-item-select="itemSelect()"
+                        inputclass=""
+                        />
+                    <div class="input-group-addon">
+                        <span ng-click="searchClick()" style="cursor: pointer;">
+                            Искать
+                        </span>   
+                    </div>
+                </div>   
+            </div>
+        </form>
+    </div>
+</div>   
+
+<div class="row">
+   
+    <div class="col-md-4" ng-controller="DashboardTopWeekCtrl">
+        <div ng-include src="'tpl-dashboard-list'"></div>
+    </div>      
+
+    <div class="col-md-4" ng-controller="DashboardRecommendedCtrl">
+        <div ng-include src="'tpl-dashboard-list'"></div>
+    </div>   
+
+    <div class="col-md-4" ng-controller="DashboardWaitlistCtrl">
+        <div ng-include src="'tpl-dashboard-list'"></div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12" ng-controller="DashboardTorrentsCtrl">
+        <div class="twidget panel panel-info">
+            <div class="twidget-header panel-heading">
+                <h3 class="panel-title">Мои торренты</h3>
+            </div>
+            <div class="twidget-body panel-body">
+                <table class="table table-striped table-condensed"> 
+                    <tbody ng-include src="'tpl-torrents-table'">
+                        
+                    </tbody>
+                </table>
+                <div class="pull-right">
+                    <a href="#!/torrents?{{allParams}}">Все мои торренты</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/ng-template" id="tpl-dashboard-list">
+
+    <div class="twidget panel" ng-class="{'panel-primary': highlight, 'panel-info': !highlight}">
+        <div class="twidget-header panel-heading">
+            <h3 class="panel-title">{{ title }}</h3>
+        </div>
+        <div class="twidget-body panel-body">
+            <table class="table table-striped table-condensed" style="table-layout: fixed;">
+                <tr ng-repeat="movie in movies">
+                    <td style="width: 35px;">
+                    	<img ng-src="http://st.kp.yandex.net/images/film_iphone/iphone60_{{movie.Self.KinopoiskID}}.jpg" style="height: 40px;">
+                    </td>
+                    <td>
+                        <div class="dwl-title">
+                            <a ng-href="#!/movies/{{movie.Self.ID}}">
+                                {{movie.Self.Title}} 
+                            </a>
+                        </div>
+
+                        <div class="dwl-original-title">
+                            <small>{{movie.Self.OriginalTitle}}</small>
+                        </div>
+                    </td>
+                    <td style="width: 80px;">
+                        <movieactions movie="movie"></movieactions>
+                    </td>
+                    <td style="width: 30px;">
+                        <torrentquality 
+                            video="movie.Self.BestVideoQuality" 
+                            audio="-1"
+                            translation="-1"
+                            ></torrentquality>       
+                    </td>
+                </tr>
+            </table>
+
+            <div class="pull-right">
+                <a ng-href="#!/movies?{{fullArgs}}">Все фильмы из списка</a>
+            </div>
+        </div>
+    </div>
+
+</script>

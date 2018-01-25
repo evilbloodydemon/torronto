@@ -1,0 +1,152 @@
+﻿<div class="row">
+    
+    <div class="col-md-5">
+        <form class="form-horizontal form-filter">
+            <angucomplete 
+                id="movieSearch"
+                placeholder="Что искать?"
+                pause="400"
+                minlength="2"
+                search-str="searchTerm"
+                selectedobject="movieSelected"
+                url="/api/search/movie_completion?title="
+                datafield="results"
+                titlefield="Title"
+                on-empty-select="searchClick()"
+                on-item-select="itemSelect()"
+                inputclass=""
+                />
+
+            <a class="btn btn-primary btn-sm" ng-click="searchClick()">
+                Искать
+            </a>
+
+            <div class="btn-group">
+                <label 
+                    class="btn btn-default btn-sm" 
+                    ng-model="waitList" 
+                    ng-show="isLogged"
+                    btn-checkbox>
+                    Список ожидания
+                </label>
+                <label 
+                    class="btn btn-default btn-sm" 
+                    ng-model="systemList"
+                    btn-checkbox>
+                    Рекомендованные
+                </label>
+            </div>
+        </form>
+        <div>
+            Выбрать фильмы
+            <torrontoselect 
+                value="movieStatus"
+                choices="movieStatuses"
+            ></torrontoselect>
+            порядок
+            <torrontoselect 
+                value="order"
+                choices="movieOrders"
+            ></torrontoselect>
+
+            <br/>
+
+            <span ng-show="actorsList.length">
+                Актёры: 
+                <span ng-repeat="actor in actorsList" class="badge alert-info">
+                    {{ actor.Name }}
+                    <i class="glyphicon glyphicon-remove close-button" ng-click="removeActor(actor)"></i>
+                </span>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-striped table-hover movies">
+            <tr>
+                <th style="width: 20px;"></th>
+                <th  class="">
+                    Название
+                </th>
+                <th style="width: 120px;">Премьера</th>
+                <th style="width: 120px;">Кинопоиск / IMDB</th>
+                <th style="width: 90px;"></th>
+                <th style="width: 30px;"></th>
+            </tr>
+            <tr ng-repeat="movie in movies">
+                <td>
+                    <img ng-src="http://st.kp.yandex.net/images/film_iphone/iphone60_{{movie.Self.KinopoiskID}}.jpg" style="height: 40px;">
+                </td>
+                <td>
+                    <a ng-href="#!/movies/{{movie.Self.ID}}">
+                        {{movie.Self.Title}} 
+                    </a>
+                    <div class="original-title">
+                        {{movie.Self.OriginalTitle}}
+                    </div>
+                </td>
+                <td>
+                    <div class="pull-right">
+                        <span ng-switch="movie.Self.Status">
+                            <i class="glyphicon glyphicon-flash" ng-switch-when="1" title="Скоро выходит"></i>
+                            <i class="glyphicon glyphicon-fire" ng-switch-when="2" title="Недавняя премьера"></i>
+                        </span>
+                    </div>
+                    {{movie.Self.ReleaseDate | date:('yyyy-MM-dd')}}
+                </td>
+                <td>
+                    <span ng-switch="!!movie.Self.KinopoiskID">
+                        <a ng-href="http://www.kinopoisk.ru/film/{{movie.Self.KinopoiskID}}" ng-switch-when="true">
+                            {{movie.Self.RatingKinopoisk | nullable}}
+                        </a>
+                        <span ng-switch-when="false">
+                            {{movie.Self.RatingKinopoisk | nullable}}
+                        </span>
+                    </span>
+                    /
+                    <span ng-switch="!!movie.Self.ImdbID">
+                        <a ng-href="http://www.imdb.com/title/tt{{movie.Self.ImdbID}}" ng-switch-when="true">
+                            {{movie.Self.RatingImdb | nullable}}
+                        </a>
+                        <span ng-switch-when="false">
+                            {{movie.Self.RatingImdb | nullable}}
+                        </span>
+                    </span>
+                </td>
+                <td>
+                    <movieactions movie="movie"></movieactions>
+                </td>
+                <td>
+                    <torrentquality 
+                        video="movie.Self.BestVideoQuality" 
+                        audio="-1"
+                        translation="-1"
+                        ></torrentquality>       
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="pull-right">
+            <pagination 
+                total-items="pgTotalItems"
+                items-per-page="pgSize"         
+                ng-model="pgCurrent" 
+                ng-change="pageChanged()"
+                boundary-links="true" 
+                rotate="false"
+                max-size="8"
+                        
+                first-text="<<"
+                previous-text="<"
+                next-text=">"
+                last-text=">>"
+                >
+            </pagination> 
+        </div>
+    </div>
+</div>   

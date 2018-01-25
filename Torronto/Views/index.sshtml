@@ -1,0 +1,334 @@
+﻿@Master['_layout.sshtml']
+@Section['Content']
+
+<div ng-app="torrontoApp">
+	<nav class="navbar navbar-default" role="navigation">
+		<div class="container-fluid">
+			<div class="navbar-header">
+			  <a class="navbar-brand" href="#!">Торронто</a>
+			</div>
+
+			<ul class="nav navbar-nav navbar-left">
+				<li><a href="#!/torrents">Торренты</a></li>
+				<li><a href="#!/movies">Фильмы</a></li>
+			</ul>
+
+			<ul class="nav navbar-nav navbar-right">
+			<li class="dropdown">
+
+			@IfNot.UserPresent
+
+				<a class="dropdown-toggle" data-toggle="dropdown">Войти через <span class="caret"></span></a>
+				<ul class="dropdown-menu" role="menu">
+					<li><a href="/authentication/redirect/facebook"><i class="fa fa-facebook"></i> Facebook</a></li>
+					<li><a href="/authentication/redirect/google"><i class="fa fa-google"></i> Google</a></li>
+					<li><a href="/authentication/redirect/vk"><i class="fa fa-vk"></i> ВКонтакте</a></li>
+<!--					<li><a href="/authentication/redirect/twitter"><i class="fa fa-twitter"></i> Twitter</a></li>-->
+				</ul>
+
+			@EndIf
+
+			@If.UserPresent
+				<a class="dropdown-toggle" data-toggle="dropdown">
+					<i class="glyphicon glyphicon-user"></i> @Model.User.DisplayName <span class="caret"></span>
+				</a>
+				<ul class="dropdown-menu" role="menu">
+					<li><a href="#!/profile">Профиль</a></li>
+					<li><a href="/logout">Выйти</a></li>
+				</ul>
+			@EndIf
+
+			</li>
+		  </ul>
+	  </div>
+	</nav>
+
+	<div class="col-md-12" ng-controller="AlertsCtrl">
+		<alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">
+			{{alert.msg}}
+		</alert>
+	</div>
+
+	<div class="container-fluid">
+		<!-- placeholder for views -->
+		<div ng-view="">
+            Не можешь дождаться, когда на трекерах появится фильм, который хочешь посмотреть?<br /> 
+            Залогинься и подпишись на него, Торронто позаботится об остальном, ты получишь уведомление на почту сразу же после появления торрента.<br />
+		</div>
+	</div>
+
+	<script type="text/ng-template" id="tpl-movie-actions">
+		<div class="text-center">
+			<div class="movie-actions">
+				<i 
+					ng-class="{active: movie.InWaitList}" 
+					ng-click="toggleWaitList(movie)"
+					class="fa fa-clock-o"
+					analytics-on="click" 
+					analytics-event="Waitlist"
+					analytics-label="Waitlist"
+					analytics-category="Movie"
+					title="{{movie.InWaitList && 'Фильм в списке ожидания' || 'Добавить фильм в список ожидания'}}"
+				></i>
+				<i 
+					ng-class="{active: movie.IsWatched}" 
+					ng-click="toggleWatchStatus(movie)"
+					class="fa fa-eye"
+					analytics-on="click" 
+					analytics-event="Watched"
+					analytics-label="Watched"
+					analytics-category="Movie"
+					title="{{movie.IsWatched && 'Фильм просмотрен, извещения отключены' || 'Отметить фильм просмотренным'}}"
+				></i>
+				<i 
+					ng-class="{active: movie.IsDontWant}" 
+					ng-click="toggleDontWantStatus(movie)"
+					class="fa fa-times"
+					analytics-on="click" 
+					analytics-event="DontWant"
+					analytics-label="DontWant"
+					analytics-category="Movie"
+					title="Не хочу смотреть"
+				></i>
+			</div>
+			<div class="movie-marks">
+				<div class="btn-group btn-group-xs">
+					<button 
+						class="btn btn-default mmark-bad" 
+						ng-click="setMark(movie, 4)" 
+						title="Плохой фильм"	
+						analytics-on="click" 
+						analytics-event="Rate"
+						analytics-label="Rate Bad"
+						analytics-category="Movie"
+						>
+						<i class="fa fa-thumbs-o-down" ng-class="{active: movie.Mark == 4}"></i>
+					</button>
+					<button 
+						class="btn btn-default mmark-medium" 
+						ng-click="setMark(movie, 7)" 
+						title="Нормальный фильм" 
+						analytics-on="click" 
+						analytics-event="Rate"
+						analytics-label="Rate Normal"
+						analytics-category="Movie"
+						>
+						<i class="fa fa-star" ng-class="{active: movie.Mark == 7}"></i>
+					</button>
+					<button 
+						class="btn btn-default mmark-good" 
+						ng-click="setMark(movie, 10)" 
+						title="Отличный фильм"
+						analytics-on="click" 
+						analytics-event="Rate"
+						analytics-label="Rate Good"
+						analytics-category="Movie"
+						>
+						<i class="fa fa-thumbs-o-up" ng-class="{active: movie.Mark == 10}"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</script>
+
+	<script type="text/ng-template" id="tpl-torrent-actions">
+		<div class="text-center">
+			<div class="torrent-actions">
+				<i 
+					ng-class="{active: torrent.IsSubscribed}" 
+					ng-click="toggleSubscribeStatus(torrent)"
+					class="fa fa-refresh"
+					analytics-on="click" 
+					analytics-event="Subscribe"
+					analytics-label="Subscribe"
+					analytics-category="Torrent"
+					title="{{torrent.IsSubscribed && 'Подписка на обновления включена' || 'Подписаться на обновления'}}"
+				></i>
+				<i 
+					ng-class="{active: torrent.IsRss}" 
+					ng-click="toggleRssStatus(torrent)"
+					class="fa fa-rss"
+					analytics-on="click" 
+					analytics-event="RSS"
+					analytics-label="RSS"
+					analytics-category="Torrent"
+					title="{{torrent.IsRss && 'Торрент в RSS' || 'Добавить торрент в RSS'}}"
+				></i>
+			</div>
+		</div>
+	</script>
+
+	<script type="text/ng-template" id="tpl-torrent-quality">
+
+		<span ng-switch="video">
+			<i ng-switch-when="8" class="glyphicon glyphicon-hd-video" style="color: dodgerblue;" title="Наилучшее качество видео"></i>
+			<i ng-switch-when="4" class="glyphicon glyphicon-sd-video" style="color: limegreen;" title="Хорошее качество видео"></i>
+			<i ng-switch-when="2" class="glyphicon glyphicon-sd-video" style="color: darkorange;" title="Посредственное качество видео"></i>
+			<i ng-switch-when="1" class="glyphicon glyphicon-sd-video" style="color: red;" title="Плохое качество видео"></i>
+			<i ng-switch-when="-1"></i>
+			<i ng-switch-default class="glyphicon glyphicon-sd-video" style="color: grey;" title="Неизвестное качество видео"></i>
+		</span>
+
+		<span ng-switch="audio">
+			<i ng-switch-when="8" class="glyphicon glyphicon-headphones" style="color: dodgerblue;" title="Отличный звук"></i>
+			<i ng-switch-when="4" class="glyphicon glyphicon-headphones" style="color: limegreen;" title="Хороший звук"></i>
+			<i ng-switch-when="2" class="glyphicon glyphicon-headphones" style="color: darkorange;" title="Посредственный звук"></i>
+			<i ng-switch-when="1" class="glyphicon glyphicon-headphones" style="color: red;" title="Плохой звук"></i>
+			<i ng-switch-when="-1"></i>
+			<i ng-switch-default class="glyphicon glyphicon-headphones" style="color: grey;" title="Неизвестное качество звука"></i>
+		</span>
+
+		<span ng-switch="translation">
+			<i ng-switch-when="8" class="fa fa-microphone" style="color: dodgerblue;" title="Дубляж"></i>
+			<i ng-switch-when="4" class="fa fa-microphone" style="color: limegreen;" title="Закадровое озвучание"></i>
+			<i ng-switch-when="1" class="glyphicon glyphicon-subtitles" style="color: darkorange;" title="Субтитры"></i>
+			<i ng-switch-when="-1"></i>
+			<i ng-switch-default class="fa fa-microphone" style="color: grey;" title="Неизвестно"></i>
+		</span>
+
+	</script>
+
+	<script type="text/ng-template" id="tpl-select">
+
+		<span class="dropdown torronto-select" is-open="isOpen">
+			<a class="dropdown-toggle">{{title}}</a>
+			<ul class="dropdown-menu">
+				<li ng-repeat="choice in choices">
+					<a ng-click="setValue(choice.value)">{{choice.title}}</a>
+				</li>
+			</ul>
+		</span>
+
+	</script>
+
+	<script type="text/ng-template" id="tpl-torrent-download">
+
+		<span>
+			<a 
+				ng-href="magnet:?xt=urn:btih:{{hash}}&tr=udp://bt.top-tor.org:2710&tr=http://retracker.local/announce" 
+				title="Magnet-ссылка"><i class="fa fa-magnet"></i></a>
+    
+			<a 
+				ng-href="http://www.top-tor.org/torrent/{{id}}" 
+				title="Перейти на трекер"><i class="fa fa-sign-out"></i></a>
+		</span>
+
+	</script>
+
+	<script type="text/ng-template" id="tpl-angucomplete">
+
+		<span class="angucomplete-holder"><input id="{{id}}_value" ng-model="searchStr" type="text" placeholder="{{placeholder}}"
+											  class="{{inputClass}}" onmouseup="this.select();" ng-focus="resetHideResults()"
+											  ng-blur="hideResults()" autocomplete="off" />
+
+			<div id="{{id}}_dropdown" class="angucomplete-dropdown" ng-if="showDropdown">
+				<div class="angucomplete-row" ng-repeat="result in results" ng-click="onItemClick(result)"
+					 ng-mouseover="hoverRow()" ng-class="{'angucomplete-selected-row': $index == currentIndex}">
+					<div ng-if="imageField" class="angucomplete-image-holder"><img ng-if="result.image && result.image != ''"
+																				   ng-src="{{result.image}}"
+																				   class="angucomplete-image"/>
+
+						<div ng-if="!result.image && result.image != ''" class="angucomplete-image-default"></div>
+					</div>
+					<div class="angucomplete-title" ng-if="matchClass" ng-bind-html="result.title"></div>
+					<div class="angucomplete-title" ng-if="!matchClass">{{ result.title }}</div>
+					<div ng-if="result.description && result.description != ''" class="angucomplete-description">
+						{{result.description}}
+					</div>
+				</div>
+			</div>
+		</span>
+
+	</script>
+
+	<script type="text/ng-template" id="tpl-torrents-table">
+	    <tr>
+            <th>
+                Название
+            </th>
+            <th style="width: 75px;">Размер</th>
+            <th style="width: 100px;">Добавлен</th>
+			<th style="width: 50px;"></th>
+            <th style="width: 68px;"></th>
+            <th style="width: 25px;" ng-hide="isMovieDetails"></th>
+            <th style="width: 50px;"></th>
+        </tr>
+
+		<tr ng-repeat="torrent in torrents">
+            <td>
+                <div class="pull-right" ng-hide="noListIcons">
+                    <i 
+                        class="fa fa-clock-o" 
+                        ng-show="torrent.InWaitList"
+                        title="Фильм из списка ожидания"
+                        ></i>
+                </div>
+                <a ng-href="#!/torrents/{{torrent.Self.ID}}" ng-show="{{!torrent.Self.IsRemoved}}">
+                    {{torrent.Self.Title}}
+                </a>
+                <span class="removed" ng-show="{{torrent.Self.IsRemoved}}">
+                    {{torrent.Self.Title}}
+                </span>
+            </td>
+            <td>{{torrent.Self.Size | mbsize}}</td>
+            <td>
+                {{torrent.Self.Created | date:('yyyy-MM-dd')}}
+            </td>
+			<td>
+				<torrentactions torrent="torrent"></torrentactions>
+			</td>
+            <td>
+                <torrentquality 
+                    video="torrent.Self.VideoQuality" 
+                    audio="torrent.Self.AudioQuality"
+                    translation="torrent.Self.Translation"
+                ></torrentquality>       
+            </td>
+			<td ng-hide="isMovieDetails">
+				<a ng-show="torrent.Self.MovieID" ng-href="#!/movies/{{torrent.Self.MovieID}}">
+                    <i class="glyphicon glyphicon-film" title="Перейти к фильму"></i>
+                </a>  
+			</td>
+            <td>   
+                <torrentdownload
+                    id="torrent.Self.SiteID"
+                    hash="torrent.Self.InfoHash"
+                ></torrentdownload>
+            </td>
+        </tr>
+
+	</script>
+
+</div>
+
+@If.UserPresent
+<script type="text/javascript">
+    LoginInfo = {
+        IsLogged: true,
+        FilterVideo: @Model.FilterVideo,
+        FilterAudio: @Model.FilterAudio,
+        FilterTraslation: @Model.FilterTraslation,
+        FilterSizes: '@Model.FilterSizes'
+    };
+</script>
+@EndIf
+
+@IfNot.UserPresent
+<script type="text/javascript">
+    LoginInfo = {
+        IsLogged: false
+	}
+</script>
+@EndIf
+
+<script type="text/javascript">
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+	ga('create', 'UA-36747263-3', 'auto');
+</script>
+
+@EndSection
+

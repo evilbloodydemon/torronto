@@ -1,0 +1,127 @@
+.nav, .pagination, .carousel, .panel-title, h3 a {
+    cursor: pointer;
+}
+
+tr.in-wait-list {
+    font-weight: bold;
+}
+
+tr.movie-heading {
+    font-weight: bold;
+}
+
+table.movies a {
+    cursor: pointer;
+}
+
+h3 .hover-hide,
+td .hover-hide {
+    display: inline-block;
+}
+
+h3:hover .hover-hide,
+td:hover .hover-hide {
+    display: none;
+}
+
+h3 .hover-show,
+td .hover-show {
+    display: none;
+}
+
+h3:hover .hover-show,
+td:hover .hover-show {
+    display: inline-block;
+}
+
+.form-filter {
+    margin-top: 19px;
+}
+
+.torronto-select a.dropdown-toggle {
+    border-bottom: 1px dotted;
+}
+
+.torronto-select a {
+    cursor: pointer;
+}
+
+.removed {
+    text-decoration: line-through;
+    color: grey;
+}
+
+.twidget-header {
+}
+
+.twidget-body {
+}
+
+.dwl-title {
+    width: 95%;
+}
+
+    .dwl-title a {
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100%;
+    }
+
+.dwl-original-title {
+    color: grey;
+}
+
+.original-title {
+    color: grey;
+}
+
+.movie-actions i,
+.movie-marks i,
+.torrent-actions i {
+    color: #ccc;
+    cursor: pointer;
+}
+
+    .movie-actions i.active,
+    .torrent-actions i.active {
+        color: black;
+    }
+
+.movie-marks .mmark-bad i.active {
+    color: red;
+}
+
+.movie-marks .mmark-medium i.active {
+    color: darkorange;
+}
+
+.movie-marks .mmark-good i.active {
+    color: limegreen;
+}
+
+.movie-marks {
+}
+
+.t-info {
+    padding: 20px;
+}
+
+.movie-persons {
+    padding-top: 20px;
+}
+
+    .movie-persons .thumbnail {
+        border: none;
+        height: 140px;
+    }
+
+.close-button {
+    cursor: pointer;
+}
+
+#footer {
+    color: #999;
+    text-align: center;
+}

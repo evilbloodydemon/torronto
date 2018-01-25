@@ -1,0 +1,757 @@
+﻿--
+-- PostgreSQL database dump
+--
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET search_path = public, pg_catalog;
+
+--
+-- Name: truncate_tables(character varying); Type: FUNCTION; Schema: public; Owner: postgres
+--
+
+CREATE FUNCTION truncate_tables(username character varying) RETURNS void
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    statements CURSOR FOR
+        SELECT tablename FROM pg_tables
+        WHERE tableowner = username AND schemaname = 'public';
+BEGIN
+    FOR stmt IN statements LOOP
+        EXECUTE 'TRUNCATE TABLE ' || quote_ident(stmt.tablename) || ' CASCADE;';
+    END LOOP;
+END;
+$$;
+
+
+ALTER FUNCTION public.truncate_tables(username character varying) OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: genres; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE genres (
+    id integer NOT NULL,
+    name character varying(100) NOT NULL,
+    site_id integer NOT NULL
+);
+
+
+ALTER TABLE genres OWNER TO postgres;
+
+--
+-- Name: genres_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE genres_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE genres_id_seq OWNER TO postgres;
+
+--
+-- Name: genres_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE genres_id_seq OWNED BY genres.id;
+
+
+--
+-- Name: movies; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE movies (
+    id integer NOT NULL,
+    title character varying(500) NOT NULL,
+    imdb_id integer,
+    kinopoisk_id integer,
+    created timestamp without time zone NOT NULL,
+    updated timestamp without time zone NOT NULL,
+    release_date date,
+    is_detailed boolean NOT NULL,
+    original_title character varying(300),
+    status smallint NOT NULL,
+    rating_kinopoisk numeric(3,2) NOT NULL,
+    rating_imdb numeric(3,2) NOT NULL,
+    rating_last_gather timestamp without time zone,
+    description text,
+    best_video_quality smallint NOT NULL,
+    duration_minutes integer NOT NULL,
+    last_recommendation timestamp without time zone,
+    is_copyrighted boolean NOT NULL
+);
+
+
+ALTER TABLE movies OWNER TO postgres;
+
+--
+-- Name: movies_genres; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE movies_genres (
+    movie_id integer NOT NULL,
+    genre_id integer NOT NULL,
+    "position" smallint NOT NULL
+);
+
+
+ALTER TABLE movies_genres OWNER TO postgres;
+
+--
+-- Name: movies_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE movies_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE movies_id_seq OWNER TO postgres;
+
+--
+-- Name: movies_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE movies_id_seq OWNED BY movies.id;
+
+
+--
+-- Name: movies_persons; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE movies_persons (
+    person_id integer NOT NULL,
+    movie_id integer NOT NULL,
+    "position" smallint NOT NULL
+);
+
+
+ALTER TABLE movies_persons OWNER TO postgres;
+
+--
+-- Name: movies_recommendations; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE movies_recommendations (
+    movie_id integer NOT NULL,
+    other_movie_id integer NOT NULL,
+    "position" smallint NOT NULL
+);
+
+
+ALTER TABLE movies_recommendations OWNER TO postgres;
+
+--
+-- Name: movies_users; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE movies_users (
+    id integer NOT NULL,
+    movie_id integer NOT NULL,
+    user_id integer NOT NULL,
+    created timestamp without time zone NOT NULL,
+    is_watched boolean NOT NULL,
+    is_waitlist boolean NOT NULL,
+    mark integer,
+    is_dont_want boolean NOT NULL
+);
+
+
+ALTER TABLE movies_users OWNER TO postgres;
+
+--
+-- Name: movies_users_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE movies_users_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE movies_users_id_seq OWNER TO postgres;
+
+--
+-- Name: movies_users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE movies_users_id_seq OWNED BY movies_users.id;
+
+
+--
+-- Name: persons; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE persons (
+    id integer NOT NULL,
+    name character varying(100) NOT NULL,
+    site_id integer NOT NULL
+);
+
+
+ALTER TABLE persons OWNER TO postgres;
+
+--
+-- Name: persons_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE persons_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE persons_id_seq OWNER TO postgres;
+
+--
+-- Name: persons_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE persons_id_seq OWNED BY persons.id;
+
+
+--
+-- Name: torrents; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE torrents (
+    id integer NOT NULL,
+    title character varying(500) NOT NULL,
+    site_id integer NOT NULL,
+    kinopoisk_id integer,
+    imdb_id integer,
+    size numeric(10,2) NOT NULL,
+    is_detailed boolean NOT NULL,
+    info_hash character varying(40) NOT NULL,
+    created timestamp without time zone NOT NULL,
+    updated timestamp without time zone NOT NULL,
+    movie_id integer,
+    file_type smallint NOT NULL,
+    video_quality smallint NOT NULL,
+    translation smallint NOT NULL,
+    sound_quality smallint NOT NULL,
+    is_removed boolean NOT NULL,
+    category smallint NOT NULL
+);
+
+
+ALTER TABLE torrents OWNER TO postgres;
+
+--
+-- Name: torrents_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE torrents_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE torrents_id_seq OWNER TO postgres;
+
+--
+-- Name: torrents_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE torrents_id_seq OWNED BY torrents.id;
+
+
+--
+-- Name: torrents_users; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE torrents_users (
+    torrent_id integer NOT NULL,
+    user_id integer NOT NULL,
+    email_sent timestamp without time zone,
+    is_subscribed boolean NOT NULL,
+    added_rss timestamp without time zone
+);
+
+
+ALTER TABLE torrents_users OWNER TO postgres;
+
+--
+-- Name: user_identities; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE user_identities (
+    id integer NOT NULL,
+    auth_provider_name character varying(50) NOT NULL,
+    auth_provider_id character varying(100) NOT NULL,
+    email character varying(50) NOT NULL,
+    created timestamp without time zone NOT NULL,
+    user_id integer NOT NULL,
+    display_name character varying(100) NOT NULL
+);
+
+
+ALTER TABLE user_identities OWNER TO postgres;
+
+--
+-- Name: user_identities_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE user_identities_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE user_identities_id_seq OWNER TO postgres;
+
+--
+-- Name: user_identities_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE user_identities_id_seq OWNED BY user_identities.id;
+
+
+--
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE users (
+    id integer NOT NULL,
+    created timestamp without time zone NOT NULL,
+    email character varying(50) NOT NULL,
+    password character varying(50) NOT NULL,
+    updated timestamp without time zone NOT NULL,
+    identifier uuid NOT NULL,
+    auth_provider_name character varying(50) NOT NULL,
+    auth_provider_id character varying(100) NOT NULL,
+    display_name character varying(50) NOT NULL,
+    filter_video smallint NOT NULL,
+    filter_audio smallint NOT NULL,
+    filter_translation smallint NOT NULL,
+    filter_sizes character varying(20) NOT NULL
+);
+
+
+ALTER TABLE users OWNER TO postgres;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE users_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE users_id_seq OWNER TO postgres;
+
+--
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE users_id_seq OWNED BY users.id;
+
+
+--
+-- Name: users_users; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE TABLE users_users (
+    user_id integer NOT NULL,
+    other_user_id integer NOT NULL
+);
+
+
+ALTER TABLE users_users OWNER TO postgres;
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY genres ALTER COLUMN id SET DEFAULT nextval('genres_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY movies ALTER COLUMN id SET DEFAULT nextval('movies_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY movies_users ALTER COLUMN id SET DEFAULT nextval('movies_users_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY persons ALTER COLUMN id SET DEFAULT nextval('persons_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY torrents ALTER COLUMN id SET DEFAULT nextval('torrents_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY user_identities ALTER COLUMN id SET DEFAULT nextval('user_identities_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
+
+
+--
+-- Name: genres_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY genres
+    ADD CONSTRAINT genres_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: movies_genres_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY movies_genres
+    ADD CONSTRAINT movies_genres_pkey PRIMARY KEY (movie_id, genre_id);
+
+
+--
+-- Name: movies_persons_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY movies_persons
+    ADD CONSTRAINT movies_persons_pkey PRIMARY KEY (person_id, movie_id);
+
+
+--
+-- Name: movies_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY movies
+    ADD CONSTRAINT movies_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: movies_recommendations_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY movies_recommendations
+    ADD CONSTRAINT movies_recommendations_pkey PRIMARY KEY (movie_id, other_movie_id);
+
+
+--
+-- Name: movies_users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY movies_users
+    ADD CONSTRAINT movies_users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: persons_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY persons
+    ADD CONSTRAINT persons_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: torrents_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY torrents
+    ADD CONSTRAINT torrents_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: torrents_users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY torrents_users
+    ADD CONSTRAINT torrents_users_pkey PRIMARY KEY (torrent_id, user_id);
+
+
+--
+-- Name: user_identities_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY user_identities
+    ADD CONSTRAINT user_identities_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users_users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
+--
+
+ALTER TABLE ONLY users_users
+    ADD CONSTRAINT users_users_pkey PRIMARY KEY (user_id, other_user_id);
+
+
+--
+-- Name: movies_genres_movie_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX movies_genres_movie_id ON movies_genres USING btree (genre_id);
+
+
+--
+-- Name: movies_kinopoisk_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE UNIQUE INDEX movies_kinopoisk_id ON movies USING btree (kinopoisk_id);
+
+
+--
+-- Name: movies_persons_movie_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX movies_persons_movie_id ON movies_persons USING btree (movie_id);
+
+
+--
+-- Name: movies_users_movie_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX movies_users_movie_id ON movies_users USING btree (movie_id, user_id);
+
+
+--
+-- Name: movies_users_user_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE UNIQUE INDEX movies_users_user_id ON movies_users USING btree (user_id, movie_id);
+
+
+--
+-- Name: persons_site_id_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE UNIQUE INDEX persons_site_id_idx ON persons USING btree (site_id);
+
+--
+-- Name: torrents_created_siteid; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX torrents_created_siteid ON torrents USING btree (created, site_id);
+
+
+--
+-- Name: torrents_movie_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX torrents_movie_id ON torrents USING btree (movie_id);
+
+
+--
+-- Name: torrents_site_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE UNIQUE INDEX torrents_site_id ON torrents USING btree (site_id);
+
+
+--
+-- Name: torrents_size; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX torrents_size ON torrents USING btree (size);
+
+
+--
+-- Name: torrents_users_user_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX torrents_users_user_id ON torrents_users USING btree (user_id);
+
+
+--
+-- Name: torrents_video_quality; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX torrents_video_quality ON torrents USING btree (video_quality);
+
+
+--
+-- Name: user_identities_user_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX user_identities_user_id ON user_identities USING btree (user_id);
+
+
+--
+-- Name: users_users_other_user_id; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+--
+
+CREATE INDEX users_users_other_user_id ON users_users USING btree (other_user_id);
+
+
+--
+-- Name: movies_genres_genre_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY movies_genres
+    ADD CONSTRAINT movies_genres_genre_id_fkey FOREIGN KEY (genre_id) REFERENCES genres(id) ON DELETE CASCADE;
+
+
+--
+-- Name: movies_genres_movie_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY movies_genres
+    ADD CONSTRAINT movies_genres_movie_id_fkey FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE;
+
+
+--
+-- Name: movies_persons_movie_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY movies_persons
+    ADD CONSTRAINT movies_persons_movie_id_fkey FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE;
+
+
+--
+-- Name: movies_persons_person_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY movies_persons
+    ADD CONSTRAINT movies_persons_person_id_fkey FOREIGN KEY (person_id) REFERENCES persons(id) ON DELETE CASCADE;
+
+
+--
+-- Name: movies_recommendations_movie_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY movies_recommendations
+    ADD CONSTRAINT movies_recommendations_movie_id_fkey FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE;
+
+
+--
+-- Name: movies_recommendations_other_movie_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY movies_recommendations
+    ADD CONSTRAINT movies_recommendations_other_movie_id_fkey FOREIGN KEY (other_movie_id) REFERENCES movies(id) ON DELETE CASCADE;
+
+
+--
+-- Name: movies_users_movie_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY movies_users
+    ADD CONSTRAINT movies_users_movie_id_fkey FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE;
+
+
+--
+-- Name: movies_users_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY movies_users
+    ADD CONSTRAINT movies_users_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: torrents_users_torrent_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY torrents_users
+    ADD CONSTRAINT torrents_users_torrent_id_fkey FOREIGN KEY (torrent_id) REFERENCES torrents(id) ON DELETE CASCADE;
+
+
+--
+-- Name: torrents_users_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY torrents_users
+    ADD CONSTRAINT torrents_users_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: user_identities_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY user_identities
+    ADD CONSTRAINT user_identities_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON SCHEMA public FROM postgres;
+REVOKE ALL ON SCHEMA public FROM torronto_user;
+
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO torronto_user;
+
+GRANT ALL PRIVILEGES
+ON ALL TABLES IN SCHEMA public 
+TO torronto_user;
+
+GRANT ALL PRIVILEGES
+ON ALL SEQUENCES IN SCHEMA public 
+TO torronto_user;
+
+--
+-- PostgreSQL database dump complete
+--
+

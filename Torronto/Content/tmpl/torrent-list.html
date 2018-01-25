@@ -1,0 +1,89 @@
+﻿<div class="row">
+    <div class="col-md-5">
+        <form class="form-horizontal form-filter" ng-submit="searchClick()">
+            <input type="text" placeholder="Что искать?" ng-model="searchTerm" />
+            <button class="btn btn-primary btn-sm" ng-click="searchClick()">
+                Искать
+            </button>
+            <div class="btn-group">
+                <label class="btn btn-default btn-sm"
+                       ng-model="waitList"
+                       ng-show="isLogged"
+                       btn-checkbox>
+                    Список ожидания
+                </label>
+                <label class="btn btn-default btn-sm"
+                       ng-model="subscription"
+                       ng-show="isLogged"
+                       btn-checkbox>
+                    Подписки
+                </label>
+            </div>
+            <div class="btn-group">
+                <label class="btn btn-default btn-sm"
+                       ng-model="sizes[0]"
+                       btn-checkbox>
+                    < 1 Гб
+                </label>
+                <label class="btn btn-default btn-sm"
+                       ng-model="sizes[1]"
+                       btn-checkbox>
+                    1 Гб - 3 Гб
+                </label>
+                <label class="btn btn-default btn-sm"
+                       ng-model="sizes[2]"
+                       btn-checkbox>
+                    3 Гб - 5 Гб
+                </label>
+                <label class="btn btn-default btn-sm"
+                       ng-model="sizes[3]"
+                       btn-checkbox>
+                    5 Гб - 15 Гб
+                </label>
+                <label class="btn btn-default btn-sm"
+                       ng-model="sizes[4]"
+                       btn-checkbox>
+                    > 15 Гб
+                </label>
+            </div>
+            <div>
+                <span>Качество видео</span>
+                <torrontoselect value="videoQuality"
+                                choices="videoQualities"></torrontoselect>
+                <span>качество звука</span>
+                <torrontoselect value="audioQuality"
+                                choices="audioQualities"></torrontoselect>
+                <span>перевод</span>
+                <torrontoselect value="translationQuality"
+                                choices="translationQualities"></torrontoselect>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-striped">
+            <tbody ng-include src="'tpl-torrents-table'"></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="pull-right">
+            <pagination total-items="pgTotalItems"
+                        items-per-page="pgSize"
+                        ng-model="pgCurrent"
+                        ng-change="pageChanged()"
+                        boundary-links="true"
+                        rotate="false"
+                        max-size="8"
+                        first-text="<<"
+                        previous-text="<"
+                        next-text=">"
+                        last-text=">>">
+            </pagination>
+        </div>
+    </div>
+</div>

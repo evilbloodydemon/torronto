@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Torronto</title>
+
+    <meta charset="utf-8" />
+	<meta name="google-site-verification" content="rUoKMKUP24nCJwLkpGD-j3indLHL_BUG63etOGTN3gA" />
+	<meta name="fragment" content="!">
+	<meta name="keywords" content="кинобаза, альтернатива kinobaza.tv, фильм, кино, торрент, скачать фильм, camrip, dvdrip, hdrip, высокое качество видео" />
+	<meta name="description" content="Торронто - поисковик по торрентам, новые фильмы и уведомления на почту" />
+	<script type="text/javascript">
+		if (window.location.href.indexOf('#_=_') > 0) {
+			window.location = window.location.href.replace(/#.*/, '#!');
+		}
+	</script>
+</head>
+    <body>
+        @Section['Content'];
+
+		@Model.LibCss
+		@Model.LibScript
+		@Model.AppScript
+
+		<div id="footer">
+			<div id="ya_share"></div>
+			<script type="text/javascript" src="//yastatic.net/share/share.js" charset="utf-8"></script>
+			<script type="text/javascript"> 
+				var YaShareInstance = new Ya.share({
+					element: 'ya_share',
+					elementStyle: {
+					    type: 'none',
+						quickServices: ['vkontakte','facebook','twitter','lj','gplus']
+					},
+					onready: function(instance) {
+					    window.YaShareInstance = instance;
+					}
+				});
+			</script> 
+			<br>
+			Вопросы, пожелания, предложения - <a href="mailto:evilbloodydemon@gmail.com">evilbloodydemon@gmail.com</a>
+		</div>
+    </body>
+</html>

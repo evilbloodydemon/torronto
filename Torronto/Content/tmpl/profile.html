@@ -1,0 +1,108 @@
+﻿<div class="row">
+    <div class="col-md-12">
+        <div class="page-header">
+            <h2>{{user.DisplayName}}</h2>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="alert alert-warning" role="alert" ng-show="!!user.MergeID">
+            Обнаружен логин, привязанный к другому аккаунту.
+            <a class="alert-link" ng-click="mergeAccounts()" style="cursor: pointer;">Объединить аккаунты</a>
+            или
+            <a class="alert-link" ng-click="stopMerge()" style="cursor: pointer;">оставить как есть</a>?
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div>
+            Персональная RSS-лента<br /><br />
+            <div class="well">
+                <a ng-href="http://torronto.evilbloodydemon.ru/rss/{{user.RssHash}}">http://torronto.evilbloodydemon.ru/rss/{{user.RssHash}}</a>
+            </div>
+        </div>
+
+        <tabset>
+            <tab heading="Фильтр">
+                <br />
+                <div class="bg-info t-info">
+                    Фильтр качества торрентов - укажи, какие торренты показывать в дашборде и почтовых уведомлениях.
+                </div>
+                <div style="padding: 20px;">
+                    <span>Качество видео</span>
+                    <torrontoselect value="user.FilterVideo"
+                                    choices="videoQualities"></torrontoselect>
+                    <br />
+                    <span>Качество звука</span>
+                    <torrontoselect value="user.FilterAudio"
+                                    choices="audioQualities"></torrontoselect>
+                    <br />
+                    <span>Перевод</span>
+                    <torrontoselect value="user.FilterTraslation"
+                                    choices="translationQualities"></torrontoselect>
+                    <br />
+                </div>
+
+                <div style="padding: 0 0 20px 20px;">
+                    <div class="btn-group">
+                        <label class="btn btn-default btn-sm"
+                               ng-model="sizes[0]"
+                               btn-checkbox>
+                            < 1 Гб
+                        </label>
+                        <label class="btn btn-default btn-sm"
+                               ng-model="sizes[1]"
+                               btn-checkbox>
+                            1 Гб - 3 Гб
+                        </label>
+                        <label class="btn btn-default btn-sm"
+                               ng-model="sizes[2]"
+                               btn-checkbox>
+                            3 Гб - 5 Гб
+                        </label>
+                        <label class="btn btn-default btn-sm"
+                               ng-model="sizes[3]"
+                               btn-checkbox>
+                            5 Гб - 15 Гб
+                        </label>
+                        <label class="btn btn-default btn-sm"
+                               ng-model="sizes[4]"
+                               btn-checkbox>
+                            > 15 Гб
+                        </label>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary" ng-click="saveProfile()">
+                    Сохранить изменения
+                </button>
+            </tab>
+
+            <tab heading="Логины" active="loginsActive">
+                <table class="table table-striped">
+                    <tr>
+                        <th style="">Email</th>
+                        <th style="">Провайдер</th>
+                        <th style="">Имя</th>
+                    </tr>
+                    <tr ng-repeat="identity in user.Identities">
+                        <td>{{identity.Email}}</td>
+                        <td>{{identity.AuthProviderName}}</td>
+                        <td>{{identity.DisplayName}}</td>
+                    </tr>
+                </table>
+
+                <div class="btn-group" dropdown>
+                    <button type="button" class="btn btn-primary dropdown-toggle">
+                        Добавить логин <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="/authentication/redirect/facebook"><i class="fa fa-facebook"></i> Facebook</a></li>
+                        <li><a href="/authentication/redirect/google"><i class="fa fa-google"></i> Google</a></li>
+                        <li><a href="/authentication/redirect/vk"><i class="fa fa-vk"></i> ВКонтакте</a></li>
+                    </ul>
+                </div>
+            </tab>
+        </tabset>
+    </div>
+</div>

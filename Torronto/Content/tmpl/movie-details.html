@@ -1,0 +1,123 @@
+﻿<div class="row">
+    <div class="col-md-8">
+        <div class="page-header">
+            <div style="font-size: 22px;" class="pull-right">
+                <movieactions movie="movie"></movieactions>
+            </div>        
+       
+
+            <h3>
+                {{movie.Self.Title}}
+                <span ng-show="movie.Self.ReleaseDate">
+                    ({{movie.Self.ReleaseDate | date:('yyyy')}})
+                </span>
+            </h3>
+            <div>
+                {{movie.Self.OriginalTitle}} 
+            </div> 
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Рейтинги</div>
+            <div class="panel-body">
+                <div>
+                    Imdb: 
+                    <span ng-switch="!!movie.Self.ImdbID">
+                        <a ng-href="http://www.imdb.com/title/tt{{movie.Self.ImdbID}}" ng-switch-when="true">
+                            {{movie.Self.RatingImdb | nullable}}
+                        </a>
+                        <span ng-switch-when="false">
+                            {{movie.Self.RatingImdb | nullable}}
+                        </span>
+                    </span>
+                </div>
+                <div>
+                    Kinopoisk:
+                    <span ng-switch="!!movie.Self.KinopoiskID">
+                        <a ng-href="http://www.kinopoisk.ru/film/{{movie.Self.KinopoiskID}}" ng-switch-when="true">
+                            {{movie.Self.RatingKinopoisk | nullable}}
+                        </a>
+                        <span ng-switch-when="false">
+                            {{movie.Self.RatingKinopoisk | nullable}}
+                        </span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="pull-right">
+                    <span ng-repeat="genre in movie.Self.Genres">
+                        <span class="badge alert-info">{{ genre.Name }}</span>
+                    </span>
+                </div>
+                Описание
+            </div>
+            <div class="panel-body">
+                <div class="movie-description" ng-bind-html="movie.Self.Description"></div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Актёры</div>
+            <div class="panel-body">
+                <div class="movie-persons container-fluid">
+                    <div class="row">
+                        <div class="col-md-2" ng-repeat="person in movie.Self.Persons">
+                            <div class="thumbnail">
+                                <img ng-src="http://st.kp.yandex.net/images/actor_iphone/iphone60_{{person.SiteID}}.jpg">
+                                <div class="caption">
+                                    <p class="text-center">
+                                        <a ng-href="#!/movies?actors={{person.ID}}">{{person.Name}}</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+    <div class="col-md-4">
+        <img ng-src="http://st.kp.yandex.net/images/film_iphone/iphone360_{{movie.Self.KinopoiskID}}.jpg"/>
+    </div>
+</div>   
+
+<div class="row">
+    <br/>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <p 
+            class="text-center bg-info" 
+            style="padding: 20px;"
+            ng-show="!(movie.InWaitList || movie.IsWatched)"
+            >
+            <span 
+                ng-show="!torrents.length"
+                >Торрентов пока что нет. Подпишись, и мы пришлем уведомление, когда они появятся!</span>
+            <span 
+                ng-show="torrents.length && !movie.InWaitList"
+                >Нет торрента нужного качества? Подпишись, и мы пришлем уведомление, когда появится новый торрент!</span>
+            <br/>
+            <br/>
+            <button 
+                type="button" 
+                ng-click="addToWaitList()"
+                ng-show="!movie.InWaitList"
+                class="btn btn-primary"
+                >Добавить в список ожидания</button>
+        </p>
+
+        <table class="table table-striped" ng-show="torrents.length">
+            <tbody  ng-include src="'tpl-torrents-table'">
+                
+            </tbody>
+                <td><a ng-href="#!/torrents/{{torrent.ID}}">{{torrent.Title}}</a></td>
+        </table>
+    </div>
+    
+</div>

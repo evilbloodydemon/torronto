@@ -1,0 +1,67 @@
+﻿index torronto_torrents {
+        type = rt
+        rt_mem_limit = 64M
+
+        path = /var/lib/sphinx/torronto_torrents
+        charset_type = utf-8
+        morphology = stem_enru
+
+        rt_field = title
+        rt_attr_uint = video_quality
+        rt_attr_uint = sound_quality
+        rt_attr_uint = translation
+        rt_attr_uint = size
+}
+
+
+index torronto_movies {
+        type = rt
+        rt_mem_limit = 64M
+
+        path = /var/lib/sphinx/torronto_movies
+        charset_type = utf-8
+        morphology = stem_enru
+
+        rt_field = title
+        rt_field = original_title
+        rt_field = description
+        rt_attr_uint = status
+}
+
+index torronto_movies_completion {
+        type = rt
+        path = /var/lib/sphinx/torronto_movies_completion
+        charset_type = utf-8
+        morphology = stem_enru
+        dict = keywords
+        min_prefix_len = 2
+        enable_star = 1
+        
+        rt_field = title_indexed
+        rt_attr_string = title
+}
+
+indexer
+{
+        mem_limit               = 32M
+}
+
+
+searchd
+{
+        listen                  = 9312
+        listen                  = 9306:mysql41
+        mysql_version_string    = 5.0.0-sphinx
+
+        log                     = /var/log/sphinx/searchd.log
+        query_log               = /var/log/sphinx/query.log
+        read_timeout            = 5
+        max_children            = 30
+        pid_file                = /var/run/sphinx/searchd.pid
+        max_matches             = 1000
+        seamless_rotate         = 1
+        preopen_indexes         = 1
+        unlink_old              = 1
+        workers                 = threads # for RT to work
+        binlog_path             = /var/lib/sphinx/
+}

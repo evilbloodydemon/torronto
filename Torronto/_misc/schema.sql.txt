@@ -1,0 +1,114 @@
+﻿-- phpMyAdmin SQL Dump
+-- version 3.3.8.1
+-- http://www.phpmyadmin.net
+--
+-- Host: localhost
+-- Generation Time: Aug 19, 2014 at 10:57 PM
+-- Server version: 5.0.45
+-- PHP Version: 5.5.8
+
+SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+
+--
+-- Database: `torronto`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `movies`
+--
+
+CREATE TABLE IF NOT EXISTS `movies` (
+  `id` int(11) NOT NULL auto_increment,
+  `title` varchar(500) NOT NULL,
+  `imdb_id` int(11) default NULL,
+  `kinopoisk_id` int(11) default NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  `release_date` date default NULL,
+  `is_detailed` tinyint(1) NOT NULL,
+  `original_title` varchar(300) default NULL,
+  `status` tinyint(11) NOT NULL,
+  `rating_kinopoisk` decimal(3,2) NOT NULL,
+  `rating_imdb` decimal(3,2) NOT NULL,
+  `rating_last_gather` datetime default NULL,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `kinopoisk_id` (`kinopoisk_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `movies_users`
+--
+
+CREATE TABLE IF NOT EXISTS `movies_users` (
+  `id` int(11) NOT NULL auto_increment,
+  `movie_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `created` datetime NOT NULL,
+  `is_watched` tinyint(1) NOT NULL,
+  `is_waitlist` tinyint(1) NOT NULL,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `user_id` (`user_id`,`movie_id`),
+  KEY `movie_id` (`movie_id`,`user_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `torrents`
+--
+
+CREATE TABLE IF NOT EXISTS `torrents` (
+  `id` int(11) NOT NULL auto_increment,
+  `title` varchar(500) NOT NULL,
+  `site_id` int(11) NOT NULL,
+  `kinopoisk_id` int(11) default NULL,
+  `imdb_id` int(11) default NULL,
+  `size` decimal(10,2) NOT NULL,
+  `is_detailed` tinyint(1) NOT NULL,
+  `info_hash` varchar(40) NOT NULL,
+  `created` datetime NOT NULL,
+  `updated` datetime NOT NULL,
+  `movie_id` int(11) default NULL,
+  `file_type` tinyint(11) NOT NULL,
+  `video_quality` tinyint(11) NOT NULL,
+  `translation` tinyint(11) NOT NULL,
+  `sound_quality` tinyint(4) NOT NULL,
+  `is_removed` tinyint(1) NOT NULL,
+  PRIMARY KEY  (`id`),
+  UNIQUE KEY `site_id` (`site_id`),
+  KEY `created_siteid` (`created`,`site_id`),
+  KEY `size` (`size`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int(11) NOT NULL auto_increment,
+  `created` datetime NOT NULL,
+  `email` varchar(50) NOT NULL,
+  `password` varchar(50) NOT NULL,
+  `updated` datetime NOT NULL,
+  `identifier` char(36) NOT NULL,
+  `auth_provider_name` varchar(50) NOT NULL,
+  `auth_provider_id` varchar(100) NOT NULL,
+  `display_name` varchar(50) NOT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `movies_users`
+--
+ALTER TABLE `movies_users`
+  ADD CONSTRAINT `movies_users_ibfk_1` FOREIGN KEY (`movie_id`) REFERENCES `movies` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
